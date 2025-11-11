@@ -134,7 +134,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="text-center mb-8 mt-4">
           
-          <p className="text-3xl sm:text-4xl font-black text-accent drop-shadow-md mb-2">Votos até 06/12/2025 12:00</p>
+          <p className="text-3xl sm:text-4xl font-black text-accent drop-shadow-md mb-2">Vote até 06/12/2025 12:00</p>
           <p className="mt-2 text-base sm:text-lg font-semibold text-foreground">Vote em todas as categorias para participar!</p>
         </div>
 
