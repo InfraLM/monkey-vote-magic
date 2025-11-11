@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { VotingCard } from "@/components/VotingCard";
 import { Header } from "@/components/Header";
+import { ThankYouPage } from "@/components/ThankYouPage";
 import { useToast } from "@/hooks/use-toast";
 import { useParallax } from "@/hooks/use-parallax";
 import { Loader2 } from "lucide-react";
@@ -32,6 +33,7 @@ const Index = () => {
   const [votes, setVotes] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showThankYou, setShowThankYou] = useState(false);
   useEffect(() => {
     loadCategories();
   }, []);
@@ -107,8 +109,8 @@ const Index = () => {
         description: "Seu voto foi registrado com sucesso! Obrigado por participar!"
       });
 
-      // Clear votes
-      setVotes({});
+      // Show thank you page
+      setShowThankYou(true);
     } catch (error) {
       console.error("Error submitting vote:", error);
       toast({
@@ -124,6 +126,14 @@ const Index = () => {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-starburst-from to-starburst-to">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>;
+  }
+
+  // Show thank you page after successful submission
+  if (showThankYou) {
+    return <ThankYouPage onContinueVoting={() => {
+      setShowThankYou(false);
+      setVotes({});
+    }} />;
   }
   return <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden">
       {/* Decorative Stickers Background with Parallax */}
