@@ -5,7 +5,7 @@ export const Header = () => {
   return <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b-4 border-primary shadow-sticker">
       <div className="container mx-auto px-3 py-2 flex items-center justify-between gap-2">
         {/* Logo - Esquerda */}
-        <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16">
+        <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20">
           <img src={logoMain} alt="MDA 2025" className="w-full h-full object-contain drop-shadow-lg" />
         </div>
 

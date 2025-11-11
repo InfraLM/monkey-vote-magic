@@ -120,12 +120,12 @@ const Index = () => {
   }
   return <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden">
       {/* Decorative Stickers Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
-        <img src={badgeMonkey} alt="" className="absolute top-20 left-4 w-16 sm:w-24 rotate-12 animate-pulse" />
-        <img src={mascotFull} alt="" className="absolute top-40 right-4 w-20 sm:w-32 -rotate-12" />
-        <img src={logoCheers} alt="" className="absolute top-[60%] left-8 w-24 sm:w-36 rotate-6" />
-        <img src={monkeysGroup} alt="" className="absolute bottom-20 right-8 w-32 sm:w-48 -rotate-6" />
-        <img src={badgeMonkey} alt="" className="absolute bottom-40 left-4 w-20 sm:w-28 rotate-45" />
+      <div className="fixed inset-0 pointer-events-none opacity-40 z-0">
+        <img src={badgeMonkey} alt="" className="absolute top-20 left-4 w-24 sm:w-32 rotate-12 animate-pulse" />
+        <img src={mascotFull} alt="" className="absolute top-40 right-4 w-28 sm:w-40 -rotate-12" />
+        <img src={logoCheers} alt="" className="absolute top-[60%] left-8 w-32 sm:w-44 rotate-6" />
+        <img src={monkeysGroup} alt="" className="absolute bottom-20 right-8 w-40 sm:w-56 -rotate-6" />
+        <img src={badgeMonkey} alt="" className="absolute bottom-40 left-4 w-28 sm:w-36 rotate-45" />
       </div>
 
       <Header />
