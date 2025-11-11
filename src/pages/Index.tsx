@@ -88,8 +88,7 @@ const Index = () => {
       };
       categories.forEach((category, index) => {
         const questionNumber = index + 1;
-        payload[`pergunta_${questionNumber}`] = category.title;
-        payload[`resposta_${questionNumber}`] = votes[category.id];
+        payload[`${questionNumber}`] = `${category.title}|${votes[category.id]}`;
       });
 
       // Send to webhook
