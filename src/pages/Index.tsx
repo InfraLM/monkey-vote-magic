@@ -180,7 +180,7 @@ const Index = () => {
       setVotes({});
     }} />;
   }
-  return <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden">
+  return <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden pt-20 sm:pt-24">
       {/* Decorative Stickers Background with Parallax */}
       <div className="fixed inset-0 pointer-events-none opacity-50 z-0">
         <img 
@@ -262,6 +262,56 @@ const Index = () => {
           alt="" 
           className="absolute bottom-[25%] left-[20%] w-20 sm:w-28 -rotate-[15deg] transition-transform" 
           style={{ transform: `translateY(${scrollY * -0.14}px) rotate(-15deg)` }}
+        />
+        
+        {/* Additional 8 Stickers - More scattered */}
+        <img 
+          src={stickerPixel} 
+          alt="" 
+          className="absolute top-[35%] left-[3%] w-20 sm:w-28 rotate-[18deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.16}px) rotate(18deg)` }}
+        />
+        <img 
+          src={stickerTv} 
+          alt="" 
+          className="absolute top-[45%] right-[12%] w-28 sm:w-36 -rotate-[20deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.14}px) rotate(-20deg)` }}
+        />
+        <img 
+          src={stickerProblematica} 
+          alt="" 
+          className="absolute bottom-[35%] left-[8%] w-24 sm:w-32 rotate-[10deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.11}px) rotate(10deg)` }}
+        />
+        <img 
+          src={stickerMonkeyBadge} 
+          alt="" 
+          className="absolute top-[18%] right-[5%] w-28 sm:w-40 -rotate-[25deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.17}px) rotate(-25deg)` }}
+        />
+        <img 
+          src={stickerSoldout} 
+          alt="" 
+          className="absolute top-[65%] left-[12%] w-24 sm:w-32 -rotate-[18deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.12}px) rotate(-18deg)` }}
+        />
+        <img 
+          src={stickerVenenosa} 
+          alt="" 
+          className="absolute bottom-[15%] right-[10%] w-32 sm:w-44 rotate-[22deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.13}px) rotate(22deg)` }}
+        />
+        <img 
+          src={stickerEngenharia} 
+          alt="" 
+          className="absolute top-[12%] left-[18%] w-20 sm:w-28 -rotate-[12deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.19}px) rotate(-12deg)` }}
+        />
+        <img 
+          src={sticker14Dez} 
+          alt="" 
+          className="absolute top-[38%] right-[18%] w-24 sm:w-32 rotate-[28deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.15}px) rotate(28deg)` }}
         />
       </div>
 

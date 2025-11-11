@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Ticket } from "lucide-react";
 import logoMain from "@/assets/logo-main.png";
 export const Header = () => {
-  return <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b-4 border-primary shadow-sticker">
+  return <header className="fixed top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b-4 border-primary shadow-sticker">
       <div className="container mx-auto px-3 py-2 flex items-center justify-between gap-2">
         {/* Logo - Esquerda */}
         <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20">
