@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -61,6 +82,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      votes: {
+        Row: {
+          category_id: string
+          category_title: string
+          created_at: string | null
+          id: string
+          ip_address: string
+          selected_alternative: string
+        }
+        Insert: {
+          category_id: string
+          category_title: string
+          created_at?: string | null
+          id?: string
+          ip_address: string
+          selected_alternative: string
+        }
+        Update: {
+          category_id?: string
+          category_title?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string
+          selected_alternative?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

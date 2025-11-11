@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { VotingCard } from "@/components/VotingCard";
 import { Header } from "@/components/Header";
 import { ThankYouPage } from "@/components/ThankYouPage";
+import { VotingClosedPage } from "@/components/VotingClosedPage";
 import { useToast } from "@/hooks/use-toast";
 import { useParallax } from "@/hooks/use-parallax";
 import { Loader2 } from "lucide-react";
@@ -34,9 +35,31 @@ const Index = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [votingActive, setVotingActive] = useState(true);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+
   useEffect(() => {
+    checkVotingStatus();
     loadCategories();
   }, []);
+
+  const checkVotingStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "voting_active")
+        .single();
+      
+      if (data) {
+        setVotingActive(data.value === true);
+      }
+    } catch (error) {
+      console.error("Error checking voting status:", error);
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
   const loadCategories = async () => {
     const {
       data,
@@ -84,7 +107,24 @@ const Index = () => {
     try {
       const ip = await getUserIP();
 
-      // Build the JSON payload in the required format
+      // 1. Save votes to Supabase database
+      const votesData = categories.map(category => ({
+        ip_address: ip,
+        category_id: category.id,
+        category_title: category.title,
+        selected_alternative: votes[category.id]
+      }));
+      
+      const { error: dbError } = await supabase
+        .from("votes")
+        .insert(votesData);
+      
+      if (dbError) {
+        console.error("Error saving votes to database:", dbError);
+        // Continue even if database save fails (webhook still works)
+      }
+
+      // 2. Build the JSON payload in the required format
       const payload: Record<string, string> = {
         ip
       };
@@ -93,7 +133,7 @@ const Index = () => {
         payload[`${questionNumber}`] = `${category.title}|${votes[category.id]}`;
       });
 
-      // Send to webhook
+      // 3. Send to webhook
       const response = await fetch("https://projetolm-n8n.8x0hqh.easypanel.host/webhook/b86cca4d-e2f0-483e-9b68-a41a69c64f11", {
         method: "POST",
         headers: {
@@ -122,10 +162,15 @@ const Index = () => {
       setIsSubmitting(false);
     }
   };
-  if (isLoading) {
+  if (isLoading || isCheckingStatus) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-starburst-from to-starburst-to">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>;
+  }
+
+  // Show voting closed page if voting is disabled
+  if (!votingActive) {
+    return <VotingClosedPage />;
   }
 
   // Show thank you page after successful submission

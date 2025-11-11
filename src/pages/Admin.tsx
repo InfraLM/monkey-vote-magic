@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Plus, Edit2 } from "lucide-react";
+import { Trash2, Plus, Edit2, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { VotingDashboard } from "@/components/VotingDashboard";
 
 interface Category {
   id: string;
@@ -25,10 +27,17 @@ const Admin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [newCategory, setNewCategory] = useState({ title: "", alternatives: "" });
+  const [votingActive, setVotingActive] = useState(true);
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      loadVotingStatus();
+    }
+  }, [isAuthenticated, isAdmin]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -194,6 +203,41 @@ const Admin = () => {
     loadCategories();
   };
 
+  const loadVotingStatus = async () => {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "voting_active")
+      .single();
+    
+    if (data && !error) {
+      setVotingActive(data.value === true);
+    }
+  };
+
+  const toggleVotingStatus = async (checked: boolean) => {
+    const { error } = await supabase
+      .from("settings")
+      .update({ value: checked })
+      .eq("key", "voting_active");
+    
+    if (!error) {
+      setVotingActive(checked);
+      toast({
+        title: checked ? "✅ Votação ativada!" : "🔒 Votação desativada!",
+        description: checked 
+          ? "Os usuários podem votar novamente" 
+          : "A página de votação foi desativada",
+      });
+    } else {
+      toast({
+        title: "Erro ao alterar status",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -242,69 +286,107 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-black text-primary">Gerenciar Categorias</h1>
+          <h1 className="text-4xl font-black text-primary">Painel Administrativo</h1>
           <Button variant="outline" onClick={() => navigate("/")}>
             Ver Votação
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5" />
-              Nova Categoria
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="title">Título da Categoria</Label>
-              <Input
-                id="title"
-                value={newCategory.title}
-                onChange={(e) => setNewCategory({ ...newCategory, title: e.target.value })}
-                placeholder="Ex: Melhor Artista do Ano"
+        {/* Voting Status Toggle */}
+        <Card className="border-2 border-primary/20 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="voting-toggle" className="text-2xl font-black text-foreground">
+                  Status da Votação
+                </Label>
+                <p className="text-base font-semibold text-muted-foreground">
+                  {votingActive 
+                    ? "✅ Votação ATIVA - Usuários podem votar" 
+                    : "🔒 Votação ENCERRADA - Página bloqueada"}
+                </p>
+              </div>
+              <Switch
+                id="voting-toggle"
+                checked={votingActive}
+                onCheckedChange={toggleVotingStatus}
+                className="scale-150 data-[state=checked]:bg-primary"
               />
             </div>
-            <div>
-              <Label htmlFor="alternatives">Alternativas (separadas por vírgula)</Label>
-              <Input
-                id="alternatives"
-                value={newCategory.alternatives}
-                onChange={(e) => setNewCategory({ ...newCategory, alternatives: e.target.value })}
-                placeholder="Ex: Artista 1, Artista 2, Artista 3"
-              />
-            </div>
-            <Button onClick={handleCreate} className="w-full font-bold">
-              Criar Categoria
-            </Button>
           </CardContent>
         </Card>
 
+        {/* Voting Dashboard */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-black text-secondary">Categorias Existentes</h2>
-          {categories.map((category) => (
-            <Card key={category.id}>
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-primary">{category.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {category.alternatives.join(", ")}
-                    </p>
+          <h2 className="text-3xl font-black text-primary flex items-center gap-2">
+            <BarChart3 className="w-8 h-8" />
+            Dashboard de Votação
+          </h2>
+          <VotingDashboard />
+        </div>
+
+        {/* Category Management */}
+        <div className="space-y-4">
+          <h2 className="text-3xl font-black text-primary">Gerenciar Categorias</h2>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Nova Categoria
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="title">Título da Categoria</Label>
+                <Input
+                  id="title"
+                  value={newCategory.title}
+                  onChange={(e) => setNewCategory({ ...newCategory, title: e.target.value })}
+                  placeholder="Ex: Melhor Artista do Ano"
+                />
+              </div>
+              <div>
+                <Label htmlFor="alternatives">Alternativas (separadas por vírgula)</Label>
+                <Input
+                  id="alternatives"
+                  value={newCategory.alternatives}
+                  onChange={(e) => setNewCategory({ ...newCategory, alternatives: e.target.value })}
+                  placeholder="Ex: Artista 1, Artista 2, Artista 3"
+                />
+              </div>
+              <Button onClick={handleCreate} className="w-full font-bold">
+                Criar Categoria
+              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-4">
+            <h3 className="text-2xl font-black text-secondary">Categorias Existentes</h3>
+            {categories.map((category) => (
+              <Card key={category.id}>
+                <CardContent className="pt-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-primary">{category.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {category.alternatives.join(", ")}
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDelete(category.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDelete(category.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>
