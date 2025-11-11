@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { VotingCard } from "@/components/VotingCard";
 import { Header } from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
+import { useParallax } from "@/hooks/use-parallax";
 import { Loader2 } from "lucide-react";
 import logoMain from "@/assets/logo-main.png";
 import badgeMonkey from "@/assets/badge-monkey.png";
@@ -20,6 +21,7 @@ const Index = () => {
   const {
     toast
   } = useToast();
+  const scrollY = useParallax();
   const [categories, setCategories] = useState<Category[]>([]);
   const [votes, setVotes] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,13 +121,76 @@ const Index = () => {
       </div>;
   }
   return <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden">
-      {/* Decorative Stickers Background */}
+      {/* Decorative Stickers Background with Parallax */}
       <div className="fixed inset-0 pointer-events-none opacity-40 z-0">
-        <img src={badgeMonkey} alt="" className="absolute top-20 left-4 w-24 sm:w-32 rotate-12 animate-pulse" />
-        <img src={mascotFull} alt="" className="absolute top-40 right-4 w-28 sm:w-40 -rotate-12" />
-        <img src={logoCheers} alt="" className="absolute top-[60%] left-8 w-32 sm:w-44 rotate-6" />
-        <img src={monkeysGroup} alt="" className="absolute bottom-20 right-8 w-40 sm:w-56 -rotate-6" />
-        <img src={badgeMonkey} alt="" className="absolute bottom-40 left-4 w-28 sm:w-36 rotate-45" />
+        <img 
+          src={badgeMonkey} 
+          alt="" 
+          className="absolute top-20 left-4 w-24 sm:w-32 rotate-12 animate-pulse transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+        />
+        <img 
+          src={mascotFull} 
+          alt="" 
+          className="absolute top-40 right-4 w-28 sm:w-40 -rotate-12 transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.15}px) rotate(-12deg)` }}
+        />
+        <img 
+          src={logoCheers} 
+          alt="" 
+          className="absolute top-[60%] left-8 w-32 sm:w-44 rotate-6 transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.08}px) rotate(6deg)` }}
+        />
+        <img 
+          src={monkeysGroup} 
+          alt="" 
+          className="absolute bottom-20 right-8 w-40 sm:w-56 -rotate-6 transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.12}px) rotate(-6deg)` }}
+        />
+        <img 
+          src={badgeMonkey} 
+          alt="" 
+          className="absolute bottom-40 left-4 w-28 sm:w-36 rotate-45 transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.1}px) rotate(45deg)` }}
+        />
+        
+        {/* Additional Stickers */}
+        <img 
+          src={mascotFull} 
+          alt="" 
+          className="absolute top-[30%] left-[10%] w-20 sm:w-28 rotate-[20deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.2}px) rotate(20deg)` }}
+        />
+        <img 
+          src={logoCheers} 
+          alt="" 
+          className="absolute top-[15%] right-[15%] w-24 sm:w-32 -rotate-12 transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.18}px) rotate(-12deg)` }}
+        />
+        <img 
+          src={monkeysGroup} 
+          alt="" 
+          className="absolute top-[80%] left-[5%] w-32 sm:w-44 rotate-12 transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.15}px) rotate(12deg)` }}
+        />
+        <img 
+          src={badgeMonkey} 
+          alt="" 
+          className="absolute top-[50%] right-[8%] w-20 sm:w-28 -rotate-[30deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.13}px) rotate(-30deg)` }}
+        />
+        <img 
+          src={mascotFull} 
+          alt="" 
+          className="absolute bottom-[10%] right-[20%] w-24 sm:w-32 rotate-[15deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.08}px) rotate(15deg)` }}
+        />
+        <img 
+          src={logoCheers} 
+          alt="" 
+          className="absolute bottom-[50%] left-[15%] w-28 sm:w-36 -rotate-[8deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.11}px) rotate(-8deg)` }}
+        />
       </div>
 
       <Header />
