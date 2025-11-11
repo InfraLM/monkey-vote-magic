@@ -22,7 +22,7 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [newCategory, setNewCategory] = useState({ title: "", alternatives: "" });
 
@@ -54,15 +54,51 @@ const Admin = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+    if (username !== "mda2025") {
+      toast({
+        title: "Erro de autenticação",
+        description: "Usuário incorreto",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const adminEmail = "admin@mda.local";
+    
+    // Tentar fazer login
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email: adminEmail,
       password,
     });
+
+    // Se o usuário não existe, chamar a função para criá-lo
+    if (error?.message?.includes("Invalid login credentials")) {
+      try {
+        await supabase.functions.invoke("ensure-admin", {
+          body: { email: adminEmail, password }
+        });
+        
+        // Tentar login novamente após criar o usuário
+        const result = await supabase.auth.signInWithPassword({
+          email: adminEmail,
+          password,
+        });
+        data = result.data;
+        error = result.error;
+      } catch (err) {
+        toast({
+          title: "Erro ao configurar admin",
+          description: "Erro ao criar usuário administrador",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     if (error) {
       toast({
         title: "Erro de autenticação",
-        description: error.message,
+        description: "Senha incorreta",
         variant: "destructive",
       });
       return;
@@ -176,13 +212,12 @@ const Admin = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Usuário</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Digite seu email"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Digite o usuário"
                 />
               </div>
               <div>
