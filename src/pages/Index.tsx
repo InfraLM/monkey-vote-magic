@@ -7,10 +7,16 @@ import { useToast } from "@/hooks/use-toast";
 import { useParallax } from "@/hooks/use-parallax";
 import { Loader2 } from "lucide-react";
 import logoMain from "@/assets/logo-main.png";
-import badgeMonkey from "@/assets/badge-monkey.png";
-import logoCheers from "@/assets/logo-cheers.png";
-import mascotFull from "@/assets/mascot-full.png";
-import monkeysGroup from "@/assets/monkeys-group.png";
+import stickerMda from "@/assets/sticker-mda.png";
+import stickerProblematica from "@/assets/sticker-problematica.png";
+import sticker14Dez from "@/assets/sticker-14dez.png";
+import stickerHop from "@/assets/sticker-hop.png";
+import stickerTv from "@/assets/sticker-tv.png";
+import stickerPixel from "@/assets/sticker-pixel.png";
+import stickerSoldout from "@/assets/sticker-soldout.png";
+import stickerMonkeyBadge from "@/assets/sticker-monkey-badge.png";
+import stickerVenenosa from "@/assets/sticker-venenosa.png";
+import stickerEngenharia from "@/assets/sticker-engenharia.png";
 interface Category {
   id: string;
   title: string;
@@ -122,74 +128,86 @@ const Index = () => {
   }
   return <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden">
       {/* Decorative Stickers Background with Parallax */}
-      <div className="fixed inset-0 pointer-events-none opacity-40 z-0">
+      <div className="fixed inset-0 pointer-events-none opacity-50 z-0">
         <img 
-          src={badgeMonkey} 
+          src={stickerMda} 
           alt="" 
-          className="absolute top-20 left-4 w-24 sm:w-32 rotate-12 animate-pulse transition-transform" 
-          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+          className="absolute top-20 left-4 w-32 sm:w-40 rotate-12 transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.1}px) rotate(12deg)` }}
         />
         <img 
-          src={mascotFull} 
+          src={stickerProblematica} 
           alt="" 
-          className="absolute top-40 right-4 w-28 sm:w-40 -rotate-12 transition-transform" 
+          className="absolute top-40 right-4 w-36 sm:w-48 -rotate-12 transition-transform" 
           style={{ transform: `translateY(${scrollY * 0.15}px) rotate(-12deg)` }}
         />
         <img 
-          src={logoCheers} 
+          src={sticker14Dez} 
           alt="" 
-          className="absolute top-[60%] left-8 w-32 sm:w-44 rotate-6 transition-transform" 
+          className="absolute top-[60%] left-8 w-28 sm:w-36 rotate-6 transition-transform" 
           style={{ transform: `translateY(${scrollY * 0.08}px) rotate(6deg)` }}
         />
         <img 
-          src={monkeysGroup} 
+          src={stickerHop} 
           alt="" 
-          className="absolute bottom-20 right-8 w-40 sm:w-56 -rotate-6 transition-transform" 
+          className="absolute bottom-20 right-8 w-32 sm:w-44 -rotate-6 transition-transform" 
           style={{ transform: `translateY(${scrollY * -0.12}px) rotate(-6deg)` }}
         />
         <img 
-          src={badgeMonkey} 
+          src={stickerTv} 
           alt="" 
-          className="absolute bottom-40 left-4 w-28 sm:w-36 rotate-45 transition-transform" 
+          className="absolute bottom-40 left-4 w-32 sm:w-40 rotate-45 transition-transform" 
           style={{ transform: `translateY(${scrollY * -0.1}px) rotate(45deg)` }}
         />
         
         {/* Additional Stickers */}
         <img 
-          src={mascotFull} 
+          src={stickerMonkeyBadge} 
           alt="" 
-          className="absolute top-[30%] left-[10%] w-20 sm:w-28 rotate-[20deg] transition-transform" 
+          className="absolute top-[30%] left-[10%] w-24 sm:w-32 rotate-[20deg] transition-transform" 
           style={{ transform: `translateY(${scrollY * 0.2}px) rotate(20deg)` }}
         />
         <img 
-          src={logoCheers} 
+          src={stickerPixel} 
           alt="" 
-          className="absolute top-[15%] right-[15%] w-24 sm:w-32 -rotate-12 transition-transform" 
+          className="absolute top-[15%] right-[15%] w-20 sm:w-28 -rotate-12 transition-transform" 
           style={{ transform: `translateY(${scrollY * 0.18}px) rotate(-12deg)` }}
         />
         <img 
-          src={monkeysGroup} 
+          src={stickerSoldout} 
           alt="" 
-          className="absolute top-[80%] left-[5%] w-32 sm:w-44 rotate-12 transition-transform" 
+          className="absolute top-[80%] left-[5%] w-24 sm:w-32 rotate-12 transition-transform" 
           style={{ transform: `translateY(${scrollY * -0.15}px) rotate(12deg)` }}
         />
         <img 
-          src={badgeMonkey} 
+          src={stickerVenenosa} 
           alt="" 
-          className="absolute top-[50%] right-[8%] w-20 sm:w-28 -rotate-[30deg] transition-transform" 
+          className="absolute top-[50%] right-[8%] w-28 sm:w-40 -rotate-[30deg] transition-transform" 
           style={{ transform: `translateY(${scrollY * 0.13}px) rotate(-30deg)` }}
         />
         <img 
-          src={mascotFull} 
+          src={stickerEngenharia} 
           alt="" 
           className="absolute bottom-[10%] right-[20%] w-24 sm:w-32 rotate-[15deg] transition-transform" 
           style={{ transform: `translateY(${scrollY * -0.08}px) rotate(15deg)` }}
         />
         <img 
-          src={logoCheers} 
+          src={stickerMda} 
           alt="" 
           className="absolute bottom-[50%] left-[15%] w-28 sm:w-36 -rotate-[8deg] transition-transform" 
           style={{ transform: `translateY(${scrollY * 0.11}px) rotate(-8deg)` }}
+        />
+        <img 
+          src={stickerHop} 
+          alt="" 
+          className="absolute top-[25%] right-[25%] w-24 sm:w-32 rotate-[25deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * 0.09}px) rotate(25deg)` }}
+        />
+        <img 
+          src={sticker14Dez} 
+          alt="" 
+          className="absolute bottom-[25%] left-[20%] w-20 sm:w-28 -rotate-[15deg] transition-transform" 
+          style={{ transform: `translateY(${scrollY * -0.14}px) rotate(-15deg)` }}
         />
       </div>
 
