@@ -3,7 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BarChart3, PieChart } from "lucide-react";
+import { Loader2, BarChart3, PieChart, Download, Calendar } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BarChart,
   Bar,
@@ -41,15 +48,40 @@ const COLORS = [
   "hsl(var(--chart-5))",
 ];
 
+type DateFilter = "all" | "today" | "week" | "month";
+
 export const VotingDashboard = () => {
   const { toast } = useToast();
   const [stats, setStats] = useState<CategoryStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState<"bar" | "pie">("bar");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     fetchVotingStats();
-  }, []);
+  }, [dateFilter]);
+
+  const getDateFilterQuery = () => {
+    const now = new Date();
+    let startDate: Date;
+
+    switch (dateFilter) {
+      case "today":
+        startDate = new Date(now.setHours(0, 0, 0, 0));
+        break;
+      case "week":
+        startDate = new Date(now.setDate(now.getDate() - 7));
+        break;
+      case "month":
+        startDate = new Date(now.setMonth(now.getMonth() - 1));
+        break;
+      default:
+        return null;
+    }
+
+    return startDate.toISOString();
+  };
 
   const fetchVotingStats = async () => {
     setLoading(true);
@@ -68,12 +100,21 @@ export const VotingDashboard = () => {
         return;
       }
 
+      const startDate = getDateFilterQuery();
+
       // Fetch vote counts for each category
       const statsPromises = categories.map(async (category) => {
-        const { data: votes, error: votesError } = await supabase
+        let query = supabase
           .from("votes")
           .select("selected_alternative")
           .eq("category_id", category.id);
+
+        // Apply date filter if not "all"
+        if (startDate) {
+          query = query.gte("created_at", startDate);
+        }
+
+        const { data: votes, error: votesError } = await query;
 
         if (votesError) throw votesError;
 
@@ -116,6 +157,85 @@ export const VotingDashboard = () => {
     }
   };
 
+  const exportToCSV = async () => {
+    setIsExporting(true);
+    try {
+      const startDate = getDateFilterQuery();
+
+      // Fetch all votes with date filter
+      let query = supabase
+        .from("votes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (startDate) {
+        query = query.gte("created_at", startDate);
+      }
+
+      const { data: votes, error } = await query;
+
+      if (error) throw error;
+
+      if (!votes || votes.length === 0) {
+        toast({
+          title: "Nenhum dado para exportar",
+          description: "Não há votos no período selecionado.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create CSV content
+      const headers = ["Data/Hora", "IP", "Categoria", "Alternativa Selecionada"];
+      const csvRows = [headers.join(",")];
+
+      votes.forEach((vote) => {
+        const row = [
+          new Date(vote.created_at).toLocaleString("pt-BR"),
+          vote.ip_address,
+          `"${vote.category_title}"`, // Quotes for CSV safety
+          `"${vote.selected_alternative}"`,
+        ];
+        csvRows.push(row.join(","));
+      });
+
+      const csvContent = csvRows.join("\n");
+      
+      // Add BOM for Excel UTF-8 support
+      const BOM = "\uFEFF";
+      const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      const filterLabel = dateFilter === "all" ? "todos" : 
+                         dateFilter === "today" ? "hoje" :
+                         dateFilter === "week" ? "7dias" : "30dias";
+      link.download = `votos_mda2025_${filterLabel}_${new Date().toISOString().split("T")[0]}.csv`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "✅ Exportação concluída!",
+        description: `${votes.length} votos exportados com sucesso.`,
+      });
+    } catch (error: any) {
+      console.error("Error exporting votes:", error);
+      toast({
+        title: "Erro ao exportar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -136,26 +256,85 @@ export const VotingDashboard = () => {
     );
   }
 
+  const getFilterLabel = () => {
+    switch (dateFilter) {
+      case "today":
+        return "Hoje";
+      case "week":
+        return "Últimos 7 dias";
+      case "month":
+        return "Últimos 30 dias";
+      default:
+        return "Todo o período";
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Chart Type Toggle */}
-      <div className="flex justify-end gap-2">
-        <Button
-          variant={chartType === "bar" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setChartType("bar")}
-        >
-          <BarChart3 className="w-4 h-4 mr-2" />
-          Barras
-        </Button>
-        <Button
-          variant={chartType === "pie" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setChartType("pie")}
-        >
-          <PieChart className="w-4 h-4 mr-2" />
-          Pizza
-        </Button>
+      {/* Filters and Actions Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-card rounded-lg border">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+          {/* Date Filter */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Calendar className="w-5 h-5 text-muted-foreground" />
+            <Select value={dateFilter} onValueChange={(value: DateFilter) => setDateFilter(value)}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todo o período</SelectItem>
+                <SelectItem value="today">Hoje</SelectItem>
+                <SelectItem value="week">Últimos 7 dias</SelectItem>
+                <SelectItem value="month">Últimos 30 dias</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Current Filter Display */}
+          <div className="text-sm font-semibold text-muted-foreground">
+            Exibindo: <span className="text-primary">{getFilterLabel()}</span>
+          </div>
+        </div>
+
+        {/* Export and Chart Type Buttons */}
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToCSV}
+            disabled={isExporting || stats.length === 0}
+            className="flex-1 sm:flex-none"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Exportando...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4 mr-2" />
+                Exportar CSV
+              </>
+            )}
+          </Button>
+          
+          <Button
+            variant={chartType === "bar" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setChartType("bar")}
+          >
+            <BarChart3 className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Barras</span>
+          </Button>
+          <Button
+            variant={chartType === "pie" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setChartType("pie")}
+          >
+            <PieChart className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Pizza</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards Grid */}
