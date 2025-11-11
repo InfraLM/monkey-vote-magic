@@ -6,6 +6,10 @@ import { Header } from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import logoMain from "@/assets/logo-main.png";
+import badgeMonkey from "@/assets/badge-monkey.png";
+import logoCheers from "@/assets/logo-cheers.png";
+import mascotFull from "@/assets/mascot-full.png";
+import monkeysGroup from "@/assets/monkeys-group.png";
 
 interface Category {
   id: string;
@@ -130,17 +134,48 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to">
+    <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to relative overflow-hidden">
+      {/* Decorative Stickers Background */}
+      <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
+        <img
+          src={badgeMonkey}
+          alt=""
+          className="absolute top-20 left-4 w-16 sm:w-24 rotate-12 animate-pulse"
+        />
+        <img
+          src={mascotFull}
+          alt=""
+          className="absolute top-40 right-4 w-20 sm:w-32 -rotate-12"
+        />
+        <img
+          src={logoCheers}
+          alt=""
+          className="absolute top-[60%] left-8 w-24 sm:w-36 rotate-6"
+        />
+        <img
+          src={monkeysGroup}
+          alt=""
+          className="absolute bottom-20 right-8 w-32 sm:w-48 -rotate-6"
+        />
+        <img
+          src={badgeMonkey}
+          alt=""
+          className="absolute bottom-40 left-4 w-20 sm:w-28 rotate-45"
+        />
+      </div>
+
       <Header />
       
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-4 py-8 relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-8 mt-4">
-          <img
-            src={logoMain}
-            alt="MDA 2025"
-            className="w-32 h-32 sm:w-48 sm:h-48 mx-auto mb-4 drop-shadow-2xl animate-pulse"
-          />
+          <div className="w-32 h-32 sm:w-48 sm:h-48 mx-auto mb-4">
+            <img
+              src={logoMain}
+              alt="MDA 2025"
+              className="w-full h-full object-contain drop-shadow-2xl animate-pulse"
+            />
+          </div>
           <p className="text-3xl sm:text-4xl font-black text-accent drop-shadow-md mb-2">2025</p>
           <p className="mt-2 text-base sm:text-lg font-semibold text-foreground">
             Vote em todas as categorias para participar! 🎉
