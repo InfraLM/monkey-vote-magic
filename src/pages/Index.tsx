@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { VotingCard } from "@/components/VotingCard";
+import { Header } from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import logoMain from "@/assets/logo-main.png";
@@ -129,20 +130,19 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header with Logo */}
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-starburst-from to-starburst-to">
+      <Header />
+      
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-8 mt-4">
           <img
             src={logoMain}
             alt="MDA 2025"
-            className="w-48 h-48 mx-auto mb-4 drop-shadow-2xl animate-pulse"
+            className="w-32 h-32 sm:w-48 sm:h-48 mx-auto mb-4 drop-shadow-2xl animate-pulse"
           />
-          <h1 className="text-5xl font-black text-primary drop-shadow-lg mb-2 uppercase tracking-tight">
-            Melhores do Ano
-          </h1>
-          <p className="text-xl font-bold text-accent drop-shadow-md">2025</p>
-          <p className="mt-4 text-lg font-semibold text-foreground">
+          <p className="text-3xl sm:text-4xl font-black text-accent drop-shadow-md mb-2">2025</p>
+          <p className="mt-2 text-base sm:text-lg font-semibold text-foreground">
             Vote em todas as categorias para participar! 🎉
           </p>
         </div>
@@ -161,16 +161,16 @@ const Index = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="sticky bottom-4">
+        <div className="sticky bottom-4 pb-4">
           <Button
             onClick={handleSubmit}
             disabled={!allCategoriesVoted || isSubmitting}
-            className="w-full h-16 text-2xl font-black uppercase shadow-pop transform hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 sm:h-16 text-xl sm:text-2xl font-black uppercase shadow-pop transform hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
             size="lg"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
                 Enviando...
               </>
             ) : (
