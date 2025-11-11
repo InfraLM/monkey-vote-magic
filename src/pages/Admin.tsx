@@ -20,22 +20,74 @@ const Admin = () => {
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState({ title: "", alternatives: "" });
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (roleData) {
+        setIsAuthenticated(true);
+        setIsAdmin(true);
+        loadCategories();
+      }
+    }
+    
+    setLoading(false);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === "mda2025" && password === "senhaultrasecreta") {
-      setIsAuthenticated(true);
-      loadCategories();
-    } else {
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
       toast({
         title: "Erro de autenticação",
-        description: "Usuário ou senha incorretos",
+        description: error.message,
         variant: "destructive",
       });
+      return;
+    }
+
+    if (data.user) {
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (roleData) {
+        setIsAuthenticated(true);
+        setIsAdmin(true);
+        loadCategories();
+      } else {
+        await supabase.auth.signOut();
+        toast({
+          title: "Acesso negado",
+          description: "Você não tem permissão de administrador",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -106,7 +158,15 @@ const Admin = () => {
     loadCategories();
   };
 
-  if (!isAuthenticated) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Carregando...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-accent p-4">
         <Card className="w-full max-w-md">
@@ -116,12 +176,13 @@ const Admin = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="username">Usuário</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Digite o usuário"
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Digite seu email"
                 />
               </div>
               <div>
@@ -131,7 +192,7 @@ const Admin = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Digite a senha"
+                  placeholder="Digite sua senha"
                 />
               </div>
               <Button type="submit" className="w-full font-bold">
