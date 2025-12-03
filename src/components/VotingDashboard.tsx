@@ -83,6 +83,7 @@ export const VotingDashboard = () => {
     return startDate.toISOString();
   };
 
+  // ✅ FUNÇÃO CORRIGIDA - Implementa paginação para suportar mais de 1000 votos
   const fetchVotingStats = async () => {
     setLoading(true);
     try {
@@ -102,21 +103,41 @@ export const VotingDashboard = () => {
 
       const startDate = getDateFilterQuery();
 
-      // Fetch vote counts for each category
+      // Fetch vote counts for each category with pagination
       const statsPromises = categories.map(async (category) => {
-        let query = supabase
-          .from("votes")
-          .select("selected_alternative")
-          .eq("category_id", category.id);
+        let allVotes: any[] = [];
+        let page = 0;
+        let hasMore = true;
+        const pageSize = 1000; // Supabase limit per request
 
-        // Apply date filter if not "all"
-        if (startDate) {
-          query = query.gte("created_at", startDate);
+        // Paginate through all votes
+        while (hasMore) {
+          let query = supabase
+            .from("votes")
+            .select("selected_alternative")
+            .eq("category_id", category.id)
+            .range(page * pageSize, (page + 1) * pageSize - 1);
+
+          // Apply date filter if not "all"
+          if (startDate) {
+            query = query.gte("created_at", startDate);
+          }
+
+          const { data: votes, error: votesError } = await query;
+
+          if (votesError) throw votesError;
+
+          if (!votes || votes.length === 0) {
+            hasMore = false;
+          } else {
+            allVotes = [...allVotes, ...votes];
+            // Se recebeu menos de 1000, não há mais páginas
+            if (votes.length < pageSize) {
+              hasMore = false;
+            }
+            page++;
+          }
         }
-
-        const { data: votes, error: votesError } = await query;
-
-        if (votesError) throw votesError;
 
         // Count votes per alternative
         const voteCounts: Record<string, number> = {};
@@ -124,7 +145,7 @@ export const VotingDashboard = () => {
           voteCounts[alt] = 0;
         });
 
-        votes?.forEach((vote) => {
+        allVotes.forEach((vote) => {
           if (voteCounts[vote.selected_alternative] !== undefined) {
             voteCounts[vote.selected_alternative]++;
           }
@@ -139,7 +160,7 @@ export const VotingDashboard = () => {
           categoryId: category.id,
           categoryTitle: category.title,
           data,
-          total: votes?.length || 0,
+          total: allVotes.length, // Total correto (todos os votos, não apenas 1000)
         };
       });
 
@@ -157,26 +178,45 @@ export const VotingDashboard = () => {
     }
   };
 
+  // ✅ FUNÇÃO CORRIGIDA - Exportação também implementa paginação
   const exportToCSV = async () => {
     setIsExporting(true);
     try {
       const startDate = getDateFilterQuery();
 
-      // Fetch all votes with date filter
-      let query = supabase
-        .from("votes")
-        .select("*")
-        .order("created_at", { ascending: false });
+      // Fetch all votes with date filter - WITH PAGINATION
+      let allVotes: any[] = [];
+      let page = 0;
+      let hasMore = true;
+      const pageSize = 1000;
 
-      if (startDate) {
-        query = query.gte("created_at", startDate);
+      while (hasMore) {
+        let query = supabase
+          .from("votes")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (startDate) {
+          query = query.gte("created_at", startDate);
+        }
+
+        const { data: votes, error } = await query;
+
+        if (error) throw error;
+
+        if (!votes || votes.length === 0) {
+          hasMore = false;
+        } else {
+          allVotes = [...allVotes, ...votes];
+          if (votes.length < pageSize) {
+            hasMore = false;
+          }
+          page++;
+        }
       }
 
-      const { data: votes, error } = await query;
-
-      if (error) throw error;
-
-      if (!votes || votes.length === 0) {
+      if (allVotes.length === 0) {
         toast({
           title: "Nenhum dado para exportar",
           description: "Não há votos no período selecionado.",
@@ -189,11 +229,11 @@ export const VotingDashboard = () => {
       const headers = ["Data/Hora", "IP", "Categoria", "Alternativa Selecionada"];
       const csvRows = [headers.join(",")];
 
-      votes.forEach((vote) => {
+      allVotes.forEach((vote) => {
         const row = [
           new Date(vote.created_at).toLocaleString("pt-BR"),
           vote.ip_address,
-          `"${vote.category_title}"`, // Quotes for CSV safety
+          `"${vote.category_title}"`,
           `"${vote.selected_alternative}"`,
         ];
         csvRows.push(row.join(","));
@@ -222,7 +262,7 @@ export const VotingDashboard = () => {
 
       toast({
         title: "✅ Exportação concluída!",
-        description: `${votes.length} votos exportados com sucesso.`,
+        description: `${allVotes.length} votos exportados com sucesso.`,
       });
     } catch (error: any) {
       console.error("Error exporting votes:", error);
